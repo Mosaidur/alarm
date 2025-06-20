@@ -34,14 +34,14 @@ A Flutter-based mobile alarm application with location detection and local notif
 
 ## 🚀 Screenshots
 
-### 🏠 Home Screen
-<img src="screenshots/home_screen.png" width="300"/>
+### 🆕 Onboarding (Example)
+<img src="screenshots/1001.jpg" width="300"/> <img src="screenshots/1002.jpg" width="300"/> <img src="screenshots/1003.jpg" width="300"/>
 
 ### 📍 Location Detection
-<img src="screenshots/location.png" width="300"/>
+<img src="screenshots/1004.jpg" width="300"/> <img src="screenshots/10044.jpg" width="300"/>
 
-### 🆕 Onboarding (Example)
-<img src="screenshots/1001.jpg" width="300"/> <img src="screenshots/1002.jpg" width="300"/><img src="screenshots/1003.jpg" width="300"/>
+### 🏠 Home Screen
+<img src="screenshots/1005.jpg" width="300"/> <img src="screenshots/1006.jpg" width="300"/> <img src="screenshots/1007.jpg" width="300"/>
 
 > _Note: Add these screenshots to a `/screenshots/` folder in your project repo._
 
