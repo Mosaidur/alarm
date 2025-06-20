@@ -50,30 +50,33 @@ class _LocationScreenState extends State<LocationScreen> {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 "Welcome! Your Personalized Alarm",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.start,
               ),
               const SizedBox(height: 16),
               const Text(
                 "Allow us to sync your sunset alarm based on your location.",
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   color: Colors.white70,
                 ),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.start,
               ),
               const SizedBox(height: 24),
-              Image.asset(
-                'assets/images/location.png',
-                height: 200,
-                fit: BoxFit.contain,
+              Center(
+                child: Image.asset(
+                  'assets/images/location.png',
+                  height: 300,
+                  fit: BoxFit.contain,
+                ),
               ),
               const SizedBox(height: 24),
               if (_errorMessage != null)
@@ -89,11 +92,11 @@ class _LocationScreenState extends State<LocationScreen> {
                 label: _isLoading ? "Fetching Location..." : "Use Current Location",
                 onPressed: _isLoading ? () {} : _getLocation,
                 icon: Icons.location_on,
-                backgroundColor: const Color(0xFFAB47BC), // Purple accent
+                backgroundColor: const Color(0xFF3A3A3A), // Purple accent
               ),
               const SizedBox(height: 10),
               CustomButton(
-                label: "Skip Location",
+                label: "Home",
                 onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
                 backgroundColor: const Color(0xFF3A3A3A), // Darker gray
                 textColor: Colors.white70,
