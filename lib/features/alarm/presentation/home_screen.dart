@@ -5,7 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 
-import '../../../helpers/notification_helper.dart';
+import '../../../helpers/awsom_notficationa_helper.dart';
 import '../../../common_widgets/custom_button.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _alarms = [];
-  final NotificationHelper _notificationHelper = NotificationHelper();
   String? _formattedAddress;
 
   @override
@@ -25,15 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _initializeLocation();
     _loadAlarms();
-    _notificationHelper.initializeNotifications(context).then((granted) {
-      if (!granted && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Notifications are disabled. Alarms may not work.'),
-          ),
-        );
-      }
-    });
+    AwesomeNotificationHelper.initialize(context);
+    _rescheduleAlarms();
   }
 
   Future<void> _initializeLocation() async {
@@ -102,11 +94,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Future<void> _saveAlarms() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final alarmsJson = jsonEncode(_alarms);
+  //   await prefs.setString('alarms', alarmsJson);
+  // }
+
   Future<void> _saveAlarms() async {
     final prefs = await SharedPreferences.getInstance();
-    final alarmsJson = jsonEncode(_alarms);
+    final encodedAlarms = _alarms.map((alarm) {
+      return {
+        'time': (alarm['time'] as DateTime).toIso8601String(),
+        'enabled': alarm['enabled'],
+      };
+    }).toList();
+    final alarmsJson = jsonEncode(encodedAlarms);
     await prefs.setString('alarms', alarmsJson);
   }
+
 
   Future<void> _addAlarm() async {
     final TimeOfDay? pickedTime = await showTimePicker(
@@ -133,32 +138,48 @@ class _HomeScreenState extends State<HomeScreen> {
 
       await _saveAlarms();
       if (_alarms.last['enabled']) {
-        await _notificationHelper.scheduleNotification(alarmTime, _alarms.length - 1);
+        await AwesomeNotificationHelper.scheduleAlarmNotification(
+          id: _alarms.length - 1,
+          dateTime: alarmTime,
+        );
       }
     }
   }
 
-  void _toggleAlarm(int index, bool value) async {
+  Future<void> _toggleAlarm(int index, bool value) async {
     setState(() => _alarms[index]['enabled'] = value);
     await _saveAlarms();
     if (value) {
-      await _notificationHelper.scheduleNotification(_alarms[index]['time'], index);
+      await AwesomeNotificationHelper.scheduleAlarmNotification(
+        id: index,
+        dateTime: _alarms[index]['time'],
+      );
     } else {
-      await _notificationHelper.cancelNotification(index);
+      await AwesomeNotificationHelper.cancelAlarm(index);
     }
   }
 
-  void _deleteAlarm(int index) async {
+  Future<void> _deleteAlarm(int index) async {
     setState(() => _alarms.removeAt(index));
     await _saveAlarms();
-    await _notificationHelper.cancelNotification(index);
+    await AwesomeNotificationHelper.cancelAlarm(index);
+  }
+
+  Future<void> _rescheduleAlarms() async {
+    for (var i = 0; i < _alarms.length; i++) {
+      if (_alarms[i]['enabled']) {
+        await AwesomeNotificationHelper.scheduleAlarmNotification(
+          id: i,
+          dateTime: _alarms[i]['time'],
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1D1B20),
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -166,16 +187,16 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60),
-              Padding(
-                padding: const EdgeInsets.only(top: 0, bottom: 15, left: 20,right: 20),
-                child: const Text(
-                  'Selected Locatation',
+              const Padding(
+                padding: EdgeInsets.only(top: 0, bottom: 15, left: 20, right: 20),
+                child: Text(
+                  'Selected Location',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
               if (_formattedAddress != null)
                 Padding(
-                  padding: const EdgeInsets.only(top: 0, bottom: 0, left: 25,right: 20),
+                  padding: const EdgeInsets.only(top: 0, bottom: 0, left: 25, right: 20),
                   child: Row(
                     children: [
                       const Icon(Icons.location_on, color: Colors.white70, size: 16),
