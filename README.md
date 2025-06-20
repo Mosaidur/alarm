@@ -1,92 +1,63 @@
-Alarm App
-A Flutter-based mobile application designed for a job interview task assessment. The app features onboarding screens, location permission handling, and alarm/notification functionality, built according to the provided Figma design.
-Project Overview
-The Alarm App guides users through an onboarding process, requests location permissions, and allows users to set and manage alarms with notifications. The app is built with clean architecture, responsive UI, and proper state management, following the design specifications provided.
-Features
+# ⏰ Alarm App – Flutter
 
-Onboarding Screens: Three screens introducing the app's concept (syncing with nature, effortless syncing, and relaxation).
-Location Access: Requests and displays the user's location after onboarding.
-Alarm Setting: Allows users to set alarms with a time and date picker, displaying a list of alarms.
-Notifications: Uses flutter_local_notifications to trigger notifications when alarms go off.
-Responsive UI: Adapts to various screen sizes with a pixel-perfect implementation of the Figma design.
-Error Handling: Gracefully handles permissions and errors.
+A Flutter-based mobile alarm application with location detection and local notifications support. It allows users to:
 
-Project Setup Instructions
+- Set multiple alarms
+- Enable/disable alarms
+- Receive timely local notifications
+- Automatically fetch and display current location address
 
-Prerequisites:
+## 📱 Features
 
-Flutter SDK (version 3.22.2 or later)
-Dart (version 3.4.3 or later)
-Android Studio or VS Code with Flutter plugins
-A device/emulator with Android or iOS
+- Local time-based alarm scheduling
+- Persistent alarm storage using `shared_preferences`
+- Geolocation with address resolution
+- Local notification support (Android/iOS)
+- Beautiful dark UI
 
+---
 
-Clone the Repository:
-git clone https://github.com/Mosaidur/alarm.git
-cd alarm
+## 🛠️ Tools & Packages Used
 
+| Package Name               | Version     | Purpose                               |
+|---------------------------|-------------|----------------------------------------|
+| `geolocator`              | ^14.0.1     | For getting user's current GPS location |
+| `geocoding`               | ^4.0.0      | Converts coordinates into readable address |
+| `intl`                    | ^0.20.2     | Date formatting                         |
+| `shared_preferences`      | ^2.0.15     | Store alarms persistently               |
+| `flutter_local_notifications` | ^19.2.1 | Schedule and show local notifications  |
+| `timezone`                | ^0.10.1     | Required for accurate scheduling        |
+| `permission_handler`      | ^12.0.0+1   | Handle runtime permissions              |
+| `cupertino_icons`         | ^1.0.8      | iOS-style icons                         |
 
-Install Dependencies:Run the following command to install all required packages:
+---
+
+## 🚀 Screenshots
+
+### 🏠 Home Screen with Alarms
+![Home Screen](screenshots/home_screen.png)
+
+### 📍 Location Detection
+![Location Shown](screenshots/location.png)
+
+### 🆕 Onboarding (Example)
+![Onboarding Screen](screenshots/onboarding.png)
+
+> _Note: Add these screenshots to a `/screenshots/` folder in your project repo._
+
+---
+
+## 🎬 Demo Video
+
+Watch a working demo of the app here:  
+📺 [Demo on Google Drive](https://drive.google.com/drive/folders/1F-Il_JmMCw4KTaSgyDxYPmN9sB2Tw8kg?usp=drive_link)
+
+---
+
+## 📦 Getting Started
+
+```bash
+git clone https://github.com/your-username/alarm_app_flutter.git
+cd alarm_app_flutter
 flutter pub get
-
-
-Run the App:Connect a device or emulator and run:
 flutter run
-
-
-Build APK:To generate an APK:
-flutter build apk --release
-
-The APK can be found in build/app/outputs/flutter-apk/app-release.apk.
-
-
-Tools and Packages Used
-
-Flutter: Framework for building the cross-platform app.
-flutter_local_notifications: For scheduling and displaying local notifications.
-geolocator: For requesting and fetching user location.
-provider: For state management.
-intl: For formatting date and time.
-shared_preferences (optional): For local storage of alarms.
-flutter_datetime_picker: For the time and date picker widget.
-
-Screenshots
-Below are some screenshots of the app:
-
-Onboarding Screen 1:
-Onboarding Screen 2:
-Onboarding Screen 3:
-Location Screen:
-Alarm Setting Screen:
-
-APK and Demo Video
-
-APK: Download the release APK from Google Drive.
-Demo Video: Watch the app in action via the demo video in the same Google Drive folder.
-
-Folder Structure
-alarm/
-├── android/                    # Android-specific files
-├── ios/                        # iOS-specific files
-├── lib/                        # Main source code
-│   ├── models/                 # Data models
-│   ├── screens/                # UI screens (onboarding, location, alarm)
-│   ├── widgets/                # Reusable UI components
-│   ├── services/               # Services (location, notifications)
-│   ├── providers/              # State management
-│   └── main.dart               # App entry point
-├── assets/                     # Images and other static assets
-├── test/                       # Unit and widget tests
-├── pubspec.yaml                # Dependencies and configuration
-└── README.md                   # This file
-
-Notes
-
-The app follows the Figma design provided: Figma Link.
-Clean architecture principles are followed with separation of concerns (UI, business logic, and data).
-The app handles edge cases like permission denials and invalid inputs.
-Local storage is implemented using shared_preferences for simplicity (optional feature).
-
-Feedback
-For any feedback or questions, please reach out via the submission form: Google Form.
-Thank you for reviewing my submission! 🚀
