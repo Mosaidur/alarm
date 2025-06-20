@@ -57,7 +57,7 @@ Watch a working demo of the app here:
 ## 📦 Getting Started
 
 ```bash
-git clone https://github.com/your-username/alarm_app_flutter.git
-cd alarm_app_flutter
+git clone https://github.com/Mosaidur/alarm.git
+cd alarm
 flutter pub get
 flutter run
