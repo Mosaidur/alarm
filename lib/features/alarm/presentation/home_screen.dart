@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../helpers/notification_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
+
+import '../../../helpers/notification_helper.dart';
 import '../../../common_widgets/custom_button.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,10 +18,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _alarms = [];
   final NotificationHelper _notificationHelper = NotificationHelper();
+  String? _formattedAddress;
 
   @override
   void initState() {
     super.initState();
+    _initializeLocation();
+    _loadAlarms();
     _notificationHelper.initializeNotifications(context).then((granted) {
       if (!granted && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -28,7 +34,57 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     });
-    _loadAlarms();
+  }
+
+  Future<void> _initializeLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() => _formattedAddress = 'Location services are disabled.');
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() => _formattedAddress = 'Location permission denied.');
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() => _formattedAddress = 'Location permission permanently denied.');
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      _convertLatLngToAddress(position.latitude, position.longitude);
+    } catch (e) {
+      setState(() => _formattedAddress = 'Error getting location: $e');
+    }
+  }
+
+  Future<void> _convertLatLngToAddress(double lat, double lng) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+      if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+        final address = [
+          place.street,
+          place.locality,
+          place.administrativeArea,
+          place.country
+        ].where((e) => e != null && e.isNotEmpty).join(', ');
+
+        setState(() => _formattedAddress = address.isNotEmpty ? address : 'Address not found');
+      } else {
+        setState(() => _formattedAddress = 'No address found');
+      }
+    } catch (e) {
+      setState(() => _formattedAddress = 'Failed to convert location: $e');
+    }
   }
 
   Future<void> _loadAlarms() async {
@@ -83,9 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _toggleAlarm(int index, bool value) async {
-    setState(() {
-      _alarms[index]['enabled'] = value;
-    });
+    setState(() => _alarms[index]['enabled'] = value);
     await _saveAlarms();
     if (value) {
       await _notificationHelper.scheduleNotification(_alarms[index]['time'], index);
@@ -95,71 +149,64 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _deleteAlarm(int index) async {
-    setState(() {
-      _alarms.removeAt(index);
-    });
+    setState(() => _alarms.removeAt(index));
     await _saveAlarms();
     await _notificationHelper.cancelNotification(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    final location = ModalRoute.of(context)?.settings.arguments as String?;
-
     return Scaffold(
-      backgroundColor: const Color(0xFF1D1B20), // Dark background
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1D1B20),
-        elevation: 0,
-        title: const Text(
-          'Home',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+      backgroundColor: const Color(0xFF1D1B20),
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (location != null)
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, color: Colors.white70, size: 16),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Selected Location: $location',
-                        style: const TextStyle(color: Colors.white70, fontSize: 14),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 60),
+              Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 15, left: 20,right: 20),
+                child: const Text(
+                  'Selected Locatation',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+              if (_formattedAddress != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 0, bottom: 0, left: 25,right: 20),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.white70, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _formattedAddress!,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               const SizedBox(height: 16),
               CustomButton(
                 onPressed: _addAlarm,
                 label: 'Add Alarm',
-                backgroundColor: const Color(0xFFAB47BC), // Purple accent
+                backgroundColor: const Color(0xFFAB47BC),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Alarms',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 8),
               Expanded(
                 child: _alarms.isEmpty
                     ? const Center(
-                  child: Text(
-                    'No alarms set yet.',
-                    style: TextStyle(color: Colors.white70),
-                  ),
+                  child: Text('No alarms set yet.', style: TextStyle(color: Colors.white70)),
                 )
                     : ListView.builder(
                   itemCount: _alarms.length,
