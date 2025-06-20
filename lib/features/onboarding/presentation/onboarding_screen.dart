@@ -57,6 +57,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: const Color(0xFF1D1B20), // Dark background
       body: SafeArea(
         child: Column(
+          // mainAxisAlignment: MainAxisAlignment.center,
+          // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: PageView.builder(
@@ -65,39 +67,61 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 itemCount: _onboardingData.length,
                 itemBuilder: (context, index) {
                   return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(40),
-                          bottomRight: Radius.circular(40),
-                        ),
-                        child: Image.asset(
-                          _onboardingData[index]['image']!,
-                          height: 300,
-                          fit: BoxFit.contain,
-                        ),
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(40),
+                              bottomRight: Radius.circular(40),
+                            ),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.5, // Half of screen height
+                              child: Image.asset(
+                                _onboardingData[index]['image']!,
+                                fit: BoxFit.cover, // Maintain aspect ratio, no stretching
+                                width: double.infinity, // Ensure image takes full width
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: TextButton(
+                              onPressed: _skip,
+                              child: const Text(
+                                'Skip',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 32),
-                      Text(
-                        _onboardingData[index]['title']!,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20,top: 0,right: 20,bottom: 0),
+                        child: Text(
+                          _onboardingData[index]['title']!,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.start,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.only(left: 20,top: 0,right: 20 ,bottom: 0),
                         child: Text(
                           _onboardingData[index]['description']!,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.white70,
                           ),
-                          textAlign: TextAlign.center,
+                          textAlign: TextAlign.start,
                         ),
                       ),
                     ],
@@ -105,44 +129,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: _skip,
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.white70),
-                    ),
+
+
+            Row(
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                _onboardingData.length,
+                    (index) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: index == _currentPage ? 15 : 6,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: index == _currentPage
+                        ? Colors.purple
+                        : Colors.white38,
+                    shape: BoxShape.circle,
                   ),
-                  Row(
-                    children: List.generate(
-                      _onboardingData.length,
-                          (index) => Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: index == _currentPage ? 8 : 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: index == _currentPage
-                              ? Colors.white
-                              : Colors.white38,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ),
-                  CustomButton(
-                    onPressed: _nextPage,
-                    label: _currentPage == _onboardingData.length - 1
-                        ? 'Get Started'
-                        : 'Next',
-                    backgroundColor: const Color(0xFFAB47BC), // Purple accent
-                  ),
-                ],
+                ),
               ),
             ),
+
+            const SizedBox(height: 35),
+
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: CustomButton(
+                onPressed: _nextPage,
+                label: _currentPage == _onboardingData.length - 1
+                    ? 'Next'
+                    : 'Next',
+                backgroundColor: const Color(0xFFAB47BC), // Purple accent
+              ),
+            ),
+            const SizedBox(height: 35),
           ],
         ),
       ),
